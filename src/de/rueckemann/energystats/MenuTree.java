@@ -2,9 +2,7 @@ package de.rueckemann.energystats;
 
 import java.util.Collection;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.event.ItemClickEvent;
+import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Tree;
 
@@ -18,30 +16,39 @@ public class MenuTree extends HorizontalLayout  {
 	
 	HorizontalLayout editBar;
 
+	private Object selectedItem = null;
+
 	public MenuTree() {
 	    setSpacing(true);
 	
 	    // Create the Tree,add to layout
 	    tree = new Tree("Hardware Inventory");
+	    refresh();
 	    addComponent(tree);
+	    tree.setImmediate(true);
+	    
+	}
 	
+	public void refresh() {
+		final HierarchicalContainer container = new HierarchicalContainer();
+
 	    String energyMeterItem = "Energy Meter";
-	    tree.addItem(energyMeterItem);
+	    container.addItem(energyMeterItem);
 	    
 	    String gas = "Gas";
-	    tree.addItem(gas);
-	    tree.setParent(gas, energyMeterItem);
+	    container.addItem(gas);
+	    container.setParent(gas, energyMeterItem);
 	    String electricity = "Electricity";
-	    tree.addItem(electricity);
-	    tree.setParent(electricity, energyMeterItem);
+	    container.addItem(electricity);
+	    container.setParent(electricity, energyMeterItem);
 	    String water = "Water";
-	    tree.addItem(water);
-	    tree.setParent(water, energyMeterItem);
-	    
-	    
+	    container.addItem(water);
+	    container.setParent(water, energyMeterItem);
+	
+        
 	    Collection<EnergyMeter> energyMeter = MongoDB.getEnergyMeter();
 	    for (EnergyMeter em : energyMeter) {
-		    tree.addItem(em);
+		    container.addItem(em);
 		    String parent = energyMeterItem;
 		    if(em.getType().equals("Gas")) {
 		    	parent = gas;
@@ -50,14 +57,21 @@ public class MenuTree extends HorizontalLayout  {
 		    } else if(em.getType().equals("Water")) {
 		    	parent = water;
 		    }
-		    tree.setParent(em, parent);
-		    tree.setChildrenAllowed(em, false);
-		    tree.setImmediate(true);
+		    container.setParent(em, parent);
+		    container.setChildrenAllowed(em, false);
 		}
-	 }
-	
+	    tree.setContainerDataSource(container);
+	    tree.expandItemsRecursively(energyMeterItem);
+	    tree.select(selectedItem);
+	   
+	}
+
 	public Tree getTree() {
 		return tree;
+	}
+
+	public void setSelectedItem(Object selected) {
+		this.selectedItem  = selected;
 	}
 
 

@@ -1,5 +1,8 @@
 package de.rueckemann.energystats;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import com.vaadin.Application;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -48,9 +51,11 @@ public class EnergystatsApplication extends Application {
         // left component:
         final MenuTree menuTree = new MenuTree();
         VerticalLayout left = new VerticalLayout();
-        Button addNew = new Button("Add");
+        Button addNew = new Button("Add Item");
+        Button refresh = new Button("Refresh");
         addNew.setStyleName(BaseTheme.BUTTON_LINK);
         left.addComponent(addNew);
+        left.addComponent(refresh);
         left.addComponent(menuTree);
         horiz.addComponent(left);
 
@@ -79,11 +84,19 @@ public class EnergystatsApplication extends Application {
 					BeanItem<EnergyMeter> energyMeterItem = new BeanItem<EnergyMeter>((EnergyMeter)selected);
 					energyMeterForm.getEnergyMeterForm().setItemDataSource(energyMeterItem);
 					energyMeterForm.setVisible(true);
+					menuTree.setSelectedItem(selected);
 				} else {
 					energyMeterForm.setVisible(false);
 				}
 			}
 		});
+	    
+	    energyMeterForm.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				menuTree.refresh();
+			} 
+	    });
 
         addNew.addListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
@@ -92,7 +105,13 @@ public class EnergystatsApplication extends Application {
 				energyMeterForm.setVisible(true);
             }
         });
-
+        
+        refresh.addListener(new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+            	menuTree.refresh();
+            }
+        });
+        
 		setMainWindow(mainWindow);
 	}
 

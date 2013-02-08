@@ -16,6 +16,7 @@ import de.rueckemann.energystats.domain.EnergyMeter;
 
 public class MongoDB {
 
+	private static final String COLLECTION_ENERGY_METER = "EnergyMeter";
 	private static MongoClient mongoClient;
 	
 	private static synchronized MongoClient getMongoClient() throws UnknownHostException {
@@ -33,18 +34,18 @@ public class MongoDB {
 		}
 	}
 	
-	public static WriteResult insertEnergyMeter(EnergyMeter energyMeter) {
-		return insertObject("EnergyMeter", energyMeter);
-	}
-	
-	public static WriteResult insertObject(String collection, Object value) {
-		DBCollection coll = getDbConnection().getCollection(collection);
-		DBObject doc = new CustomDBObject(value);
-		return coll.insert(doc);
-	}
+//	public static WriteResult insertEnergyMeter(EnergyMeter energyMeter) {
+//		return insertObject(COLLECTION_ENERGY_METER, energyMeter);
+//	}
+//	
+//	public static WriteResult insertObject(String collection, Object value) {
+//		DBCollection coll = getDbConnection().getCollection(collection);
+//		DBObject doc = new CustomDBObject(value);
+//		return coll.insert(doc);
+//	}
 	
 	public static Collection<EnergyMeter> getEnergyMeter() {
-		DBCollection coll = getDbConnection().getCollection("EnergyMeter");
+		DBCollection coll = getDbConnection().getCollection(COLLECTION_ENERGY_METER);
 		DBCursor cursor = coll.find();
 		Collection<EnergyMeter>result = new ArrayList<EnergyMeter>();
 		try {
@@ -75,6 +76,34 @@ public class MongoDB {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		return result;
+	}
+
+	public static int saveObject(Object bean) throws DBException {
+		int result = 0;
+		DBCollection coll = getDbConnection().getCollection(COLLECTION_ENERGY_METER);
+		DBObject doc = new CustomDBObject(bean);
+		WriteResult writeResult = coll.save(doc);
+		if(writeResult != null) {
+			if(writeResult.getError() != null) {
+				throw new DBException(writeResult.getError());				
+			} 
+			result = writeResult.getN();
+		}
+		return result;
+	}
+	
+	public static int removeObject(Object bean) throws DBException {
+		int result = 0;
+		DBCollection coll = getDbConnection().getCollection(COLLECTION_ENERGY_METER);
+		DBObject doc = new CustomDBObject(bean);
+		WriteResult writeResult = coll.remove(doc);
+		if(writeResult != null) {
+			if(writeResult.getError() != null) {
+				throw new DBException(writeResult.getError());				
+			} 
+			result = writeResult.getN();
 		}
 		return result;
 	}

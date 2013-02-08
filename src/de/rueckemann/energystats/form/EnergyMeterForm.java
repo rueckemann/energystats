@@ -1,6 +1,12 @@
 package de.rueckemann.energystats.form;
 
-	import java.util.Arrays;
+	import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.Alignment;
@@ -10,22 +16,26 @@ import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.BaseTheme;
 
+import de.rueckemann.energystats.FormUtil;
 import de.rueckemann.energystats.domain.EnergyMeter;
 import de.rueckemann.energystats.mongo.MongoDB;
 
 	@SuppressWarnings("serial")
 	public class EnergyMeterForm extends VerticalLayout {
 
-	    final Form energyMeterForm;
+		private List<ChangeListener> listeners = Collections.synchronizedList(new ArrayList<ChangeListener>());
 
+		final Form energyMeterForm;
+
+	    
 	    public EnergyMeterForm() {
+	    	
+	    	// Create the Form
+	    	energyMeterForm = new Form();
 
 	        BeanItem<EnergyMeter> energyMeterItem = new BeanItem<EnergyMeter>(new EnergyMeter()); 
 
-	        // Create the Form
-	        energyMeterForm = new Form();
 	        energyMeterForm.setCaption("Energy Meter");
 	        energyMeterForm.setWriteThrough(false); // we want explicit 'apply'
 	        energyMeterForm.setInvalidCommitted(false); // no invalid values in datamodel
@@ -45,13 +55,13 @@ import de.rueckemann.energystats.mongo.MongoDB;
 	        // The cancel / apply buttons
 	        HorizontalLayout buttons = new HorizontalLayout();
 	        buttons.setSpacing(true);
-	        Button discardChanges = new Button("Discard changes",
+	        Button discardChanges = new Button("Cancel",
 	                new Button.ClickListener() {
 	                    public void buttonClick(ClickEvent event) {
 	                        energyMeterForm.discard();
 	                    }
 	                });
-	        discardChanges.setStyleName(BaseTheme.BUTTON_LINK);
+	        //discardChanges.setStyleName(BaseTheme.BUTTON_LINK);
 	        buttons.addComponent(discardChanges);
 	        buttons.setComponentAlignment(discardChanges, Alignment.MIDDLE_LEFT);
 
@@ -61,13 +71,31 @@ import de.rueckemann.energystats.mongo.MongoDB;
 	                try {
 	                    energyMeterForm.commit();
 	                    EnergyMeter bean = ((BeanItem<EnergyMeter>)energyMeterForm.getItemDataSource()).getBean();
-	                    MongoDB.insertEnergyMeter(bean);
+	                    int updateCount = MongoDB.saveObject(bean);
+	                    FormUtil.showMessage(getWindow(), "Update successful", "Updated " + updateCount + " elements.");
+	                    notifyListeners(bean);
 	                } catch (Exception e) {
 	                    // Ignored, we'll let the Form handle the errors
 	                }
 	            }
 	        });
 	        buttons.addComponent(apply);
+	        
+	        Button remove = new Button("Remove", new Button.ClickListener() {
+	            @SuppressWarnings("unchecked")
+				public void buttonClick(ClickEvent event) {
+	                try {
+	                    EnergyMeter bean = ((BeanItem<EnergyMeter>)energyMeterForm.getItemDataSource()).getBean();
+	                    int updateCount = MongoDB.removeObject(bean);
+	                    FormUtil.showMessage(getWindow(), "Update successful", "Updated " + updateCount + " elements.");
+	                    notifyListeners(bean);
+	                } catch (Exception e) {
+	                	FormUtil.showMessage(getWindow(), "Error", e.getMessage());
+	                }
+	            }
+	        });
+	        buttons.addComponent(remove);
+
 	        energyMeterForm.getFooter().addComponent(buttons);
 	        energyMeterForm.getFooter().setMargin(false, false, true, true);
 
@@ -99,4 +127,18 @@ import de.rueckemann.energystats.mongo.MongoDB;
 	    public Form getEnergyMeterForm() {
 	    	return energyMeterForm;
 	    }
+
+		public void addChangeListener(ChangeListener listener) {
+			this.listeners.add(listener);
+		}
+		
+		public void removeChangeListener(ChangeListener listener) {
+			this.listeners.remove(listener);
+		}
+
+		private void notifyListeners(EnergyMeter em) {
+			for (ChangeListener listener  : listeners) {
+				listener.stateChanged(new ChangeEvent(em) );
+			}
+		}
 	}
