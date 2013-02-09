@@ -84,10 +84,10 @@ public class EnergystatsApplication extends Application {
 					BeanItem<EnergyMeter> energyMeterItem = new BeanItem<EnergyMeter>((EnergyMeter)selected);
 					energyMeterForm.getEnergyMeterForm().setItemDataSource(energyMeterItem);
 					energyMeterForm.setVisible(true);
-					menuTree.setSelectedItem(selected);
 				} else {
 					energyMeterForm.setVisible(false);
 				}
+				menuTree.setSelectedItem(selected);
 			}
 		});
 	    

@@ -48,7 +48,8 @@ public class MenuTree extends HorizontalLayout  {
         
 	    Collection<EnergyMeter> energyMeter = MongoDB.getEnergyMeter();
 	    for (EnergyMeter em : energyMeter) {
-		    container.addItem(em);
+
+	    	container.addItem(em);
 		    String parent = energyMeterItem;
 		    if(em.getType().equals("Gas")) {
 		    	parent = gas;
@@ -62,7 +63,9 @@ public class MenuTree extends HorizontalLayout  {
 		}
 	    tree.setContainerDataSource(container);
 	    tree.expandItemsRecursively(energyMeterItem);
+	    System.out.println("Trying to select " + selectedItem);
 	    tree.select(selectedItem);
+	    
 	   
 	}
 
@@ -71,7 +74,9 @@ public class MenuTree extends HorizontalLayout  {
 	}
 
 	public void setSelectedItem(Object selected) {
-		this.selectedItem  = selected;
+		if(selected != null) {
+			this.selectedItem  = selected;
+		}
 	}
 
 
