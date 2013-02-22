@@ -61,7 +61,7 @@ import de.rueckemann.energystats.mongo.MongoDB;
 	                        energyMeterForm.discard();
 	                    }
 	                });
-	        //discardChanges.setStyleName(BaseTheme.BUTTON_LINK);
+	        discardChanges.setDebugId("btDiscardChanges");
 	        buttons.addComponent(discardChanges);
 	        buttons.setComponentAlignment(discardChanges, Alignment.MIDDLE_LEFT);
 
@@ -79,7 +79,9 @@ import de.rueckemann.energystats.mongo.MongoDB;
 	                }
 	            }
 	        });
+	        apply.setDebugId("btApply");
 	        buttons.addComponent(apply);
+	        
 	        
 	        Button remove = new Button("Remove", new Button.ClickListener() {
 	            @SuppressWarnings("unchecked")
@@ -94,6 +96,7 @@ import de.rueckemann.energystats.mongo.MongoDB;
 	                }
 	            }
 	        });
+	        remove.setDebugId("btRemove");
 	        buttons.addComponent(remove);
 
 	        energyMeterForm.getFooter().addComponent(buttons);

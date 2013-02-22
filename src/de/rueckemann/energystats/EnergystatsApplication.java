@@ -50,9 +50,12 @@ public class EnergystatsApplication extends Application {
 
         // left component:
         final MenuTree menuTree = new MenuTree();
+        menuTree.setDebugId("menuTree");
         VerticalLayout left = new VerticalLayout();
         Button addNew = new Button("Add Item");
+        addNew.setDebugId("btAddNew"); 
         Button refresh = new Button("Refresh");
+        refresh.setDebugId("btRefresh");
         addNew.setStyleName(BaseTheme.BUTTON_LINK);
         left.addComponent(addNew);
         left.addComponent(refresh);

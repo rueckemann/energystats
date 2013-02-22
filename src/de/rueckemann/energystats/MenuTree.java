@@ -23,6 +23,7 @@ public class MenuTree extends HorizontalLayout  {
 	
 	    // Create the Tree,add to layout
 	    tree = new Tree("Hardware Inventory");
+	    tree.setDebugId("energyMeterTree");
 	    refresh();
 	    addComponent(tree);
 	    tree.setImmediate(true);
@@ -65,8 +66,6 @@ public class MenuTree extends HorizontalLayout  {
 	    tree.expandItemsRecursively(energyMeterItem);
 	    System.out.println("Trying to select " + selectedItem);
 	    tree.select(selectedItem);
-	    
-	   
 	}
 
 	public Tree getTree() {
